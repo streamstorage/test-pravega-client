@@ -1,0 +1,27 @@
+version: '3'
+services:
+  zookeeper:
+    image: pravega/zookeeper
+    ports:
+      - "2181:2181"
+    volumes:
+      - ${MOUNT_PATH}/zk/data:/data
+      - ${MOUNT_PATH}/zk/datalog:/datalog
+
+  bookie1:
+    image: pravega/bookkeeper
+    ports:
+      - "3181:3181"
+    restart: always
+    environment:
+      ZK_URL: zookeeper:2181
+      BK_bookiePort: 3181
+      BK_advertisedAddress: ${BOOKIE_PUBLIC_IP}
+      BOOKIE_EXTRA_OPTS: |
+        -XX:MaxDirectMemorySize=8g
+        -Xmx16g
+
+    links:
+      - zookeeper
+    volumes:
+      - ${MOUNT_PATH}/bk1:/bk

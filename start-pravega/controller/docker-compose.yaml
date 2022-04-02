@@ -1,0 +1,19 @@
+version: '3'
+services:
+  controller:
+    image: pravega/pravega
+    ports:
+      - "9090:9090"
+      - "10080:10080"
+    command: controller
+    environment:
+      WAIT_FOR: ${ZK_IP}:2181
+      ZK_URL: ${ZK_IP}:2181
+      REST_SERVER_PORT: 10080
+      JAVA_OPTS: |
+        -Dcontroller.service.rpc.listener.port=9090
+        -Xmx4g
+        -XX:OnError="kill -9 p%"
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+CrashOnOutOfMemoryError
+        -XX:+HeapDumpOnOutOfMemoryError

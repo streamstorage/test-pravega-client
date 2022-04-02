@@ -1,0 +1,29 @@
+version: '3'
+services:
+  segmentstore:
+    restart: always
+    image: pravega/pravega
+    ports:
+      - "12345:12345"
+    command: segmentstore
+    volumes:
+      - ${PRAVEGA_LTS}:/pravega/lts
+    environment:
+      WAIT_FOR: ${BOOKIE_IP}:3181,${ZK_IP}:2181
+      TIER2_STORAGE: "FILESYSTEM"
+      NFS_MOUNT: /pravega/lts
+      ZK_URL: ${ZK_IP}:2181
+      CONTROLLER_URL: tcp://${CONTROLLER_IP}:9090
+      JAVA_OPTS: |
+        -Dpravegaservice.service.published.host.nameOrIp=${SEGMENTSTORE_IP}
+        -Dbookkeeper.ensemble.size=1
+        -Dpravegaservice.cache.size.max=19327352832
+        -Dbookkeeper.ack.quorum.size=1
+        -Dbookkeeper.write.quorum.size=1
+        -XX:OnError="kill -9 p%"
+        -Xmx6G
+        -XX:MaxDirectMemorySize=20G
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+CrashOnOutOfMemoryError
+        -XX:+HeapDumpOnOutOfMemoryError
+        -Dpravegaservice.storage.layout=ROLLING_STORAGE
